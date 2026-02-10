@@ -6,7 +6,7 @@ import { Button } from './ui';
 import { Card, CardContent, CardFooter } from './ui/Card';
 import { Badge } from './ui/Badge';
 import { ShoppingCart, Star } from 'lucide-react';
-import { useCart } from '@/hooks/useCart';
+import { useHydratedCart } from '@/hooks/useCart';
 import { Product } from '@/lib/mockData';
 import { useState } from 'react';
 
@@ -15,7 +15,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { addItem } = useCart();
+  const { addItem } = useHydratedCart();
   const [addedToCart, setAddedToCart] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 

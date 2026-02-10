@@ -1,13 +1,36 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { MOCK_CATEGORIES, MOCK_PRODUCTS } from '@/lib/mockData';
 
-export async function POST() {
+/**
+ * Admin-only seed endpoint for initializing database with mock data
+ * Requires SEED_API_SECRET header to prevent unauthorized access
+ */
+export async function POST(request: NextRequest) {
   try {
-    console.log('Starting database seeding...');
+    // Verify admin access
+    const authHeader = request.headers.get('x-seed-secret');
+    const expectedSecret = process.env.SEED_API_SECRET;
+
+    if (!expectedSecret) {
+      console.error('SEED_API_SECRET not configured');
+      return NextResponse.json(
+        { error: 'Seed endpoint not available' },
+        { status: 503 }
+      );
+    }
+
+    if (!authHeader || authHeader !== expectedSecret) {
+      console.warn('Unauthorized seed attempt');
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    console.log('Starting database seeding (authenticated)...');
 
     // 1. Seed categories
-    console.log('Seeding categories...');
     const { error: categoriesError } = await supabase
       .from('categories')
       .upsert(
@@ -23,15 +46,12 @@ export async function POST() {
     if (categoriesError) {
       console.error('Error seeding categories:', categoriesError);
       return NextResponse.json(
-        { error: 'Failed to seed categories', details: categoriesError.message },
+        { error: 'Failed to seed categories' },
         { status: 500 }
       );
     }
 
-    console.log(`Successfully seeded ${MOCK_CATEGORIES.length} categories`);
-
     // 2. Seed products
-    console.log('Seeding products...');
     const { error: productsError } = await supabase
       .from('products')
       .upsert(
@@ -53,12 +73,12 @@ export async function POST() {
     if (productsError) {
       console.error('Error seeding products:', productsError);
       return NextResponse.json(
-        { error: 'Failed to seed products', details: productsError.message },
+        { error: 'Failed to seed products' },
         { status: 500 }
       );
     }
 
-    console.log(`Successfully seeded ${MOCK_PRODUCTS.length} products`);
+    console.log('Database seeded successfully');
 
     return NextResponse.json(
       {
@@ -72,13 +92,8 @@ export async function POST() {
   } catch (error) {
     console.error('Seeding error:', error);
     return NextResponse.json(
-      { error: 'Internal server error during seeding', details: error instanceof Error ? error.message : 'Unknown' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
-}
-
-export async function GET() {
-  // Allow seeding via GET request as well
-  return POST();
 }

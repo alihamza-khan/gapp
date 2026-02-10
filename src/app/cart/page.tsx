@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useCart } from '@/hooks/useCart';
+import { useHydratedCart } from '@/hooks/useCart';
 import { Button } from '@/components/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -10,7 +10,7 @@ import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, getTotal, clearCart } = useCart();
+  const { items, removeItem, updateQuantity, getTotal, clearCart } = useHydratedCart();
   const [promoCode, setPromoCode] = useState('');
   const [showCheckout, setShowCheckout] = useState(false);
 

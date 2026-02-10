@@ -1,12 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useCart } from '@/hooks/useCart';
+import { useHydratedCart } from '@/hooks/useCart';
 import { ShoppingCart, Menu } from 'lucide-react';
 import { useState } from 'react';
 
 export function Header() {
-  const { getItemCount } = useCart();
+  const { getItemCount } = useHydratedCart();
   const itemCount = getItemCount();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

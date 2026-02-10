@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useEffect, useState } from 'react';
 
 export interface CartItem {
   id: string;
@@ -67,3 +68,35 @@ export const useCart = create<CartStore>()(
     }
   )
 );
+
+/**
+ * Safe cart hook that prevents hydration mismatch
+ * Ensures localStorage is only accessed after component hydration
+ * 
+ * @example
+ * const { items, addItem } = useHydratedCart();
+ */
+export function useHydratedCart() {
+  const store = useCart();
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  // Return empty state during SSR/hydration, full state after hydration
+  if (!isHydrated) {
+    return {
+      items: [],
+      addItem: store.addItem,
+      removeItem: store.removeItem,
+      updateQuantity: store.updateQuantity,
+      clearCart: store.clearCart,
+      getTotal: () => 0,
+      getItemCount: () => 0,
+    };
+  }
+
+  return store;
+}
+

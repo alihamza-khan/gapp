@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { MOCK_CATEGORIES, MOCK_PRODUCTS } from '@/lib/mockData';
 
 // Helper to convert old numeric IDs to new UUID format
 function convertProductIdToUUID(id: string): string {
@@ -19,64 +18,7 @@ function convertProductIdToUUID(id: string): string {
   return id;
 }
 
-// Ensure products exist in the database with correct UUIDs
-async function ensureProductsSeeded() {
-  try {
-    console.log('Seeding products and categories...');
 
-    // Always upsert to ensure we have the right format
-    console.log('Upserting categories...');
-    const { error: categoriesError } = await supabase
-      .from('categories')
-      .upsert(
-        MOCK_CATEGORIES.map(cat => ({
-          id: cat.id,
-          name: cat.name,
-          description: cat.description,
-          icon: cat.icon,
-        })),
-        { onConflict: 'id' }
-      );
-
-    if (categoriesError) {
-      console.error('Error seeding categories:', categoriesError);
-      throw new Error(`Failed to seed categories: ${categoriesError.message}`);
-    }
-
-    console.log(`Upserted ${MOCK_CATEGORIES.length} categories`);
-
-    console.log('Upserting products...');
-    // Upsert products - this will insert new ones and update existing ones
-    const { error: productsError } = await supabase
-      .from('products')
-      .upsert(
-        MOCK_PRODUCTS.map(prod => ({
-          id: prod.id,
-          name: prod.name,
-          description: prod.description,
-          price: prod.price,
-          category_id: prod.category_id,
-          image_url: prod.image_url,
-          stock: prod.stock,
-          rating: prod.rating,
-          reviews_count: prod.reviews_count,
-          is_featured: prod.is_featured,
-        })),
-        { onConflict: 'id' }
-      );
-
-    if (productsError) {
-      console.error('Error seeding products:', productsError);
-      throw new Error(`Failed to seed products: ${productsError.message}`);
-    }
-
-    console.log(`Upserted ${MOCK_PRODUCTS.length} products`);
-    return true;
-  } catch (error) {
-    console.error('Error in ensureProductsSeeded:', error);
-    throw error;
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -113,10 +55,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ensure products are seeded before saving order
-    console.log('Ensuring products are seeded...');
-    await ensureProductsSeeded();
-
     // Generate order number
     const orderNumber = `ORD-${Date.now()}`;
     const customerName = `${firstName} ${lastName}`;
@@ -142,7 +80,7 @@ export async function POST(request: NextRequest) {
     if (orderError || !orderData) {
       console.error('Error creating order:', orderError);
       return NextResponse.json(
-        { error: 'Failed to create order: ' + (orderError?.message || 'Unknown error') },
+        { error: 'Failed to create order' },
         { status: 500 }
       );
     }
@@ -175,10 +113,7 @@ export async function POST(request: NextRequest) {
       await supabase.from('orders').delete().eq('id', orderData.id);
       
       return NextResponse.json(
-        { 
-          error: `Failed to save order items: ${itemsError.message}`,
-          code: itemsError.code 
-        },
+        { error: 'Failed to save order items' },
         { status: 500 }
       );
     }
@@ -201,10 +136,7 @@ export async function POST(request: NextRequest) {
     console.error('=== ORDER SUBMISSION ERROR ===');
     console.error('Error:', error);
     return NextResponse.json(
-      { 
-        error: 'Internal server error: ' + (error instanceof Error ? error.message : 'Unknown'),
-        details: error instanceof Error ? error.stack : undefined 
-      },
+      { error: 'Failed to process order' },
       { status: 500 }
     );
   }
