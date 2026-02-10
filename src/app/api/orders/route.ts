@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { initializeDatabase } from '@/lib/productSeeding';
 
 // Helper to convert old numeric IDs to new UUID format
 function convertProductIdToUUID(id: string): string {
@@ -22,6 +23,9 @@ function convertProductIdToUUID(id: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    // Initialize database if needed (cached, won't run on every request)
+    await initializeDatabase();
+
     const body = await request.json();
     const {
       firstName,
