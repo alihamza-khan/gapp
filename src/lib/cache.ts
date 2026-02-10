@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import type { NextResponseInit } from 'next/server';
 
 /**
  * Cache duration options in seconds
@@ -10,6 +9,15 @@ export const CACHE_DURATIONS = {
   LONG: 60 * 60, // 1 hour
   VERY_LONG: 24 * 60 * 60, // 24 hours
 } as const;
+
+/**
+ * Response options for cached responses
+ */
+interface CacheResponseOptions {
+  status?: number;
+  headers?: Record<string, string>;
+  isPublic?: boolean;
+}
 
 /**
  * Create appropriate Cache-Control header for HTTP responses
@@ -39,7 +47,7 @@ export function getCacheControl(duration: number, isPublic = true): string {
  *
  * @param data Response data
  * @param duration Cache duration in seconds (default: 5 minutes)
- * @param options Additional NextResponse init options
+ * @param options Additional response options
  * @returns NextResponse with cache headers
  *
  * @example
@@ -48,15 +56,15 @@ export function getCacheControl(duration: number, isPublic = true): string {
 export function createCachedResponse<T>(
   data: T,
   duration = CACHE_DURATIONS.MEDIUM,
-  options?: NextResponseInit & { isPublic?: boolean }
+  options?: CacheResponseOptions
 ): NextResponse {
-  const { isPublic = true, ...otherOptions } = options || {};
+  const { isPublic = true, status, headers = {} } = options || {};
 
   return NextResponse.json(data, {
-    ...otherOptions,
+    status,
     headers: {
       'Cache-Control': getCacheControl(duration, isPublic),
-      ...(otherOptions?.headers || {}),
+      ...headers,
     },
   });
 }
@@ -88,15 +96,17 @@ export function addCacheHeaders(
  */
 export function createNoCacheResponse<T>(
   data: T,
-  options?: NextResponseInit
+  options?: CacheResponseOptions
 ): NextResponse {
+  const { status, headers = {} } = options || {};
+
   return NextResponse.json(data, {
-    ...options,
+    status,
     headers: {
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0',
-      ...(options?.headers || {}),
+      ...headers,
     },
   });
 }

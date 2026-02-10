@@ -107,6 +107,9 @@ export function resetSeedingCache() {
  * Get seeding status
  */
 export function getSeedingStatus() {
+  return {
+    isInitialized: seedingCache.isInitialized,
+    lastChecked: new Date(seedingCache.lastChecked),
     cacheValid: Date.now() - seedingCache.lastChecked < seedingCache.cacheDuration,
   };
 }

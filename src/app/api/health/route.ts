@@ -18,7 +18,7 @@ export async function GET() {
 
     // Check Supabase connectivity
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('products')
         .select('id')
         .limit(1)
