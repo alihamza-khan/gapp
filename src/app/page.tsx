@@ -7,7 +7,7 @@ import { ArrowRight, Truck, Shield, Clock } from 'lucide-react';
 
 // Enable Incremental Static Regeneration for this page
 // Revalidate every 5 minutes to keep content fresh
-export const revalidate = 5 * 60; // 5 minutes in seconds
+export const revalidate = 300; // 5 minutes in seconds
 
 export default function Home() {
   const featuredProducts = MOCK_PRODUCTS.filter((p) => p.is_featured).slice(0, 8);
