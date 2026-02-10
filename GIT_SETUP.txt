@@ -1,0 +1,85 @@
+================================================================================
+                    GAPP GIT SETUP INSTRUCTIONS
+================================================================================
+
+STEP 1: INSTALL GIT
+==================
+Download and install Git for Windows from:
+https://git-scm.com/download/win
+
+Use default installation settings. After installation, restart your terminal.
+
+STEP 2: CHOOSE YOUR SETUP METHOD
+================================
+
+METHOD A: Automated PowerShell Script (Recommended for Windows)
+--------------------------------------------------------------
+1. Open PowerShell in the GAPP project directory
+2. Run the following command:
+   .\setup-git.ps1
+
+The script will automatically handle all git configuration and push to GitHub.
+
+METHOD B: Automated Bash Script
+-------------------------------
+1. Open Git Bash in the GAPP project directory
+2. Run the following command:
+   bash setup-git.sh
+
+METHOD C: Manual Commands
+-------------------------
+If you prefer to run commands manually, execute these in order:
+
+   git config --global user.name "Ali Hamza Khan"
+   git config --global user.email "ali@example.com"
+   git init
+   git add .
+   git commit -m "Initial commit: Grocery app with Supabase integration and order management system"
+   git remote add origin https://github.com/alihamza-khan/gapp.git
+   git branch -M main
+   git push -u origin main
+
+STEP 3: CONFIGURE VERCEL ENVIRONMENT VARIABLES
+==============================================
+After the git push succeeds:
+
+1. Go to https://vercel.com
+2. Click "Import Project" and select your gapp repository
+3. Click "Configure Project" and go to Environment Variables
+4. Add these variables (copy exact values from your .env.local file):
+   - NEXT_PUBLIC_SUPABASE_URL
+   - NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+STEP 4: DEPLOY TO VERCEL
+=======================
+1. Click the "Deploy" button in Vercel dashboard
+2. Wait for the build to complete (usually 2-3 minutes)
+3. Your app is live at the provided Vercel URL!
+
+TROUBLESHOOTING
+===============
+
+Q: "Git is not recognized as an internal or external command"
+A: Git is not installed. Download and install from https://git-scm.com/download/win
+
+Q: "Permission denied" when running setup-git.sh
+A: Run this command first:
+   git update-index --chmod=+x setup-git.sh
+
+Q: "fatal: repository already exists"
+A: The repository is already initialized. You're ready for the next step.
+
+Q: Setup script failed to push
+A: Check your GitHub repository exists at:
+   https://github.com/alihamza-khan/gapp
+   
+   If not, create it first on GitHub, then run the setup script again.
+
+Q: Vercel deployment fails
+A: Check that environment variables are set correctly:
+   - NEXT_PUBLIC_SUPABASE_URL must start with "https://"
+   - NEXT_PUBLIC_SUPABASE_ANON_KEY must be a long alphanumeric string
+   
+   If still failing, check the Vercel build logs for specific error messages.
+
+================================================================================
